@@ -1,0 +1,47 @@
+#zutun:
+# hilfe: -h / --hilfe / --help
+# cli option um optionale formular-daten zu aktivieren 
+# kot aufbereiten
+# dateigröße überprüfen und ggf. ignorieren
+# dateiart überprüfen und ggf. ignorieren
+# neue modi: geiststoß, säge-spam
+# proxy unterstützung
+
+
+# http://krautchan.net/post?X-Progress-ID=b-b444cdc11f1ca1d60338afe46c61521b-1305988156364-9979301
+# http://krautchan.net/post?X-Progress-ID=b3023801-b444cdc11f1ca1d60338afe46c61521b-1305992511304-11830656
+# http://krautchan.net/post?X-Progress-ID=b-02c3ff7971ce82804f9a3e8466b4342c-`date +\%s`666-91289331
+# http://krautchan.net/post?X-Progress-ID=b3023801-02c3ff7971ce82804f9a3e8466b4342c-`date +\%s`666-71189331
+
+# http://krautchan.net/post?X-Progress-ID=											konstante
+# b																					brett (neuer faden)
+# b3023801																			?? brett/faden_id (antwort)
+# -b444cdc11f1ca1d60338afe46c61521b			cookieGet('desuchan.session')			keks-inhalt
+# -1305988156364							new Date().getTime()					unix-zeit in (!) ms
+# -9979301									Math.round(100000000 * Math.random())	7-8 rand int
+#########################^^^^wird gar nicht benötigt, LACHS^^^^#########################
+
+###
+-F "internal_n=Bernd"		# name
+-F "internal_s=krebs"		# betreff
+-F "internal_t=krebs"		# kommentar
+-F "sage=1"					# säge, höhöhö
+-F "forward=thread"			# um die id vom frisch erstellten faden leichter zu bekomben
+							# <p>The document has moved <a href="/b/thread-3023801.html">here</a>.</p>
+-F "parent=3024438"			# auf ID antworten, leer lassen um neuen faden zu erstellen
+-F "file_0=@/krebs1.jpg"	# datei 1
+-F "file_1=@/krebs2.jpg"	# datei 2 usw.
+-F "password=hunter2"		# passwort zum löschen /nicht getestet
+-F "board=b"				# brettwahl (zum löschen sowie erstellen notwendig)
+-F "post_3024438=delete"	# löschen
+###
+
+# pfostieren
+curl -A "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_7; en-us) AppleWebKit/533.21.1 (KHTML, like Gecko) Version/5.0.5 Safari/533.21.1" -F "file_0=@/krebs1.jpg" -F "internal_t=test" -F "forward=thread" -F "board=b" "http://krautchan.net/post"
+
+# löschen
+curl -A "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_7; en-us) AppleWebKit/533.21.1 (KHTML, like Gecko) Version/5.0.5 Safari/533.21.1" -F "board=b" -F "post_3024438=delete" "http://krautchan.net/delete"
+
+#
+-F "submit=Absenden"
+-F "submit=Löschen"
