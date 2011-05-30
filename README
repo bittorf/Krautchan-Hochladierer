@@ -1,9 +1,6 @@
 #zutun:
-# hilfe: -h / --hilfe / --help
-# cli option um optionale formular-daten zu aktivieren 
 # kot aufbereiten
-# dateigröße überprüfen und ggf. ignorieren
-# dateiart überprüfen und ggf. ignorieren
+# post-größe auf /k/, /l/ und /m/ berücksichtigen WHARGHBLBLBL
 # neue modi: geiststoß, säge-spam
 # proxy unterstützung
 
