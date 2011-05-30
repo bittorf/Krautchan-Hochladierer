@@ -18,11 +18,16 @@ files_allowed=""
 count=0
 arr_kind=(-iname "*.gif" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.psd" -o -iname "*.mp3" -o -iname "*.ogg" -o -iname "*.rar" -o -iname "*.zip" -o -iname "*.torrent" -o -iname "*.swf")
 
-while getopts hsoc: opt; do
+while getopts "h?soc:" opt; do
 	case "${opt}" in
 		h)
 		echo "
-kraut_up.sh [-soh] [-c 1-4]
+kraut_up.sh [-soh] [-c 1-4] Datei ...
+
+Erstellt Fäden und pfostiert alle auf Krautchan erlaubten Dateien aus einem oder mehreren Verzeichnissen.
+Alternativ lassen sich die zu pfostierenden Dateien aber auch als Skript-Argument angeben (Dateigröße und Art
+werden dabei nicht berücksichtigt).
+Getestet mit OS X, Debian Stale und Cygwin.
 
 Wiezu:
  -s	Säge!
@@ -43,6 +48,9 @@ Wiezu:
 		;;
 	esac
 done
+
+shift $((OPTIND-1))
+arr_files+=("${@}")
 
 choose() {
 echo -ne "Wähle ein Brett aus
@@ -118,9 +126,19 @@ echo -ne "\nFaden-ID
  (z.B. 3025905 - leer lassen um einen neuen Faden zu erstellen): "
 read -e id
 
-echo -ne "\nVerzeichniss(e) auswählen. Leerzeichen müssen escaped werden.
+if [ -z "${arr_files}" ]; then
+	echo -ne "\nVerzeichniss(e) auswählen. Leerzeichen müssen escaped werden.
  (z.B.: /Users/bernd/penisbilder /home/bernadette/als\ ob):\n"
-read -a arr_dir
+	read -a arr_dir
+	IFS='
+'
+	for dir in "${arr_dir[@]}"; do
+		for files in $(find ${dir} -type f -size -${max_file_size} \( ${arr_kind[@]} \) ); do
+			arr_files+=("${files}")
+		done
+	done
+	IFS=${bifs}
+fi
 
 echo
 
@@ -140,15 +158,6 @@ elif [ -z "${id}" ] && [ -z "${icom}" ]; then
  (Ist nötig weil ein neuer Faden erstellt wird. Wird nur ein mal pfostiert): "
 	read -e icom
 fi
-
-IFS='
-'
-for dir in "${arr_dir[@]}"; do
-	for files in $(find ${dir} -type f -size -${max_file_size} \( ${arr_kind[@]} \) ); do
-		arr_files+=("${files}")
-	done
-done
-IFS=${bifs}
 
 arr_files+=(END)
 
