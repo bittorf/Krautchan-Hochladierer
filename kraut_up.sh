@@ -18,15 +18,15 @@ files_allowed=""
 count=0
 arr_kind=(-iname "*.gif" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.psd" -o -iname "*.mp3" -o -iname "*.ogg" -o -iname "*.rar" -o -iname "*.zip" -o -iname "*.torrent" -o -iname "*.swf")
 
-while getopts "h?soc:" opt; do
+while getopts "hsoc:" opt; do
 	case "${opt}" in
 		h)
 		echo "
 kraut_up.sh [-soh] [-c 1-4] Datei ...
 
 Erstellt Fäden und pfostiert alle auf Krautchan erlaubten Dateien aus einem oder mehreren Verzeichnissen.
-Alternativ lassen sich die zu pfostierenden Dateien aber auch als Skript-Argument angeben (Dateigröße und Art
-werden dabei nicht berücksichtigt).
+Alternativ lassen sich die zu pfostierenden Dateien als Skript-Argument angeben (Dateigröße und Art werden
+dabei nicht berücksichtigt).
 Getestet mit OS X, Debian Stale und Cygwin.
 
 Wiezu:
@@ -129,7 +129,7 @@ read -e id
 if [ -z "${arr_files}" ]; then
 	echo -ne "\nVerzeichniss(e) auswählen. Leerzeichen müssen escaped werden.
  (z.B.: /Users/bernd/penisbilder /home/bernadette/als\ ob):\n"
-	read -a arr_dir
+	read -ea arr_dir
 	IFS='
 '
 	for dir in "${arr_dir[@]}"; do
@@ -140,11 +140,9 @@ if [ -z "${arr_files}" ]; then
 	IFS=${bifs}
 fi
 
-echo
-
 if [ -n "${optional}" ]; then
 	if [ -z "${name_allowed}" ]; then
-		echo -ne "Name: "
+		echo -ne "\nName: "
 		read -e name
 	fi
 	echo -ne "\nBetreff
@@ -154,15 +152,17 @@ if [ -n "${optional}" ]; then
  (Wird nur ein mal pfostiert): "
 	read -e icom
 elif [ -z "${id}" ] && [ -z "${icom}" ]; then
-	echo -ne "Kommentar
+	echo -ne "\nKommentar
  (Ist nötig weil ein neuer Faden erstellt wird. Wird nur ein mal pfostiert): "
 	read -e icom
 fi
 
 arr_files+=(END)
 
+echo
+
 for file in "${arr_files[@]}"; do
-	let "count += 1"
+	((count += 1))
 	if [ "${file}" != "END" ]; then
 		if [ "${files_allowed}" -eq "1" ]; then
 			arr_curl+=(-F file_0=@${file})
@@ -190,7 +190,8 @@ for file in "${arr_files[@]}"; do
 	output=$(${curl} -# -A "${ua}" -F "sage=${sage}" -F "board=${board}" -F "parent=${id}" -F "forward=thread" -F "internal_n=${name}" -F "internal_s=${isub}" -F "internal_t=${icom}" "${arr_curl[@]}" "${post_url}")
 
 	if [ -z "${id}" ]; then
-		id=$(echo ${output} | egrep -o '\-[0-9]+\.' | egrep -o '[0-9]+')
+		[[ $output =~ .*thread-([0-9]*)\.html.* ]]
+		id=${BASH_REMATCH[1]}
 		echo "Neuen Faden erstellt: http://krautchan.net/${board}/thread-${id}.html"
 	fi
 	
