@@ -20,18 +20,20 @@ Wiezu:
 
 ua="Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_7; en-us) AppleWebKit/533.21.1 (KHTML, like Gecko) Version/5.0.5 Safari/533.21.1"
 post_url="http://krautchan.net/post"
-count=0; optional=0; combo=0; name_allowed=1; bifs=${IFS}; id=; name=; isub=; icom=
+cretry=3; cdelay=120; ctimeout=900; count=0; optional=0; combo=0; name_allowed=1; debug=0
+bifs=${IFS}; id=; name=; isub=; icom=
 #delete_url="http://krautchan.net/delete"
 #pwd=""
 arr_kind=(-iname "*.gif" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.psd" -o -iname "*.mp3" -o -iname "*.ogg" -o -iname "*.rar" -o -iname "*.zip" -o -iname "*.torrent" -o -iname "*.swf")
 
-while getopts ":hsoc:" opt; do
+while getopts ":hsoc:d" opt; do
 	case "${opt}" in
 		h) 	echo -e "${kchelp}"; exit 0 ;;
 		s) 	sage=1 ;;
 		o) 	optional=1 ;;
 		c) 	[[ "${OPTARG}" != [1-4] ]] && echo -e "\nAch, Bernd! Nur die Ziffern 1 bis 4 machen Sinn ..." && exit 1
 			combo=${OPTARG} ;;
+		d)	debug=1 ;;
 		\?)	echo -e "\n -${OPTARG} gibt es nicht!\n${kchelp}"; exit 1 ;;
 		:)	echo -e "\n -${OPTARG} benötigt ein Argument!\n${kchelp}"; exit 1 ;;
 	esac
@@ -86,6 +88,7 @@ if [[ -z "${arr_files}" ]]; then
 		done
 	done
 	IFS=${bifs}
+	echo -e "\n${#arr_files[@]} Dateien gefunden."
 fi
 
 if [[ "${optional}" -eq "1" ]]; then
@@ -132,13 +135,16 @@ for file in "${arr_files[@]}"; do
 		exit 0
 	fi
 
-	output=$(curl -# -A "${ua}" -F "sage=${sage}" -F "board=${board}" -F "parent=${id}" -F "forward=thread" -F "internal_n=${name}" -F "internal_s=${isub}" -F "internal_t=${icom}" "${arr_curl[@]}" "${post_url}")
+	output=$(curl --retry "${cretry}" --retry-delay "${cdelay}" --max-time "${ctimeout}" -# -A "${ua}" -F "sage=${sage}" -F "board=${board}" -F "parent=${id}" -F "forward=thread" -F "internal_n=${name}" -F "internal_s=${isub}" -F "internal_t=${icom}" "${arr_curl[@]}" "${post_url}")
 
 	if [[ -z "${id}" ]]; then
-		[[ $output =~ .*thread-([0-9]*)\.html.* ]]; id=${BASH_REMATCH[1]}
+		[[ $output =~ .*thread-([0-9]*)\.html.* ]]
+		id=${BASH_REMATCH[1]}
 		echo "Neuen Faden erstellt: http://krautchan.net/${board}/thread-${id}.html"
 	fi
-	#echo -ne "\n\n######################\n\n${output}" >> ${HOME}/Desktop/debug.txt #debug
+	
+	[[ "${debug}" -eq "1"  ]] && echo -ne "\n\n##\n##\n\n${output}" >> ${HOME}/Desktop/debug.txt
+	
 	count=0
 	unset arr_curl
 	isub=
