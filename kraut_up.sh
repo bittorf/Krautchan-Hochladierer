@@ -4,11 +4,12 @@ if [[ -z "$(type -P curl)" ]]; then
 	echo "Dieses Skript benötigt cURL. Vergewissere dich dass es installiert ist und im Suchpfad liegt."; exit 1
 fi
 
-kchelp="\nkraut_up.sh [-soh] [-c 1-4] Datei ...
+kchelp="\nkraut_up.sh [-sohd] [-c 1-4] Datei ...
 
 Erstellt Fäden und pfostiert alle auf Krautchan erlaubten Dateien aus einem oder mehreren Verzeichnissen.
 Alternativ lassen sich die zu pfostierenden Dateien als Skript-Argument angeben (Dateigröße und Art werden
 dabei nicht berücksichtigt).
+Während des Upload-Vorgangs lassen sich mittels ctrl-c Kommentare hinzufügen.
 Getestet mit OS X, Debian Stale und Cygwin.
 
 Wiezu:
@@ -16,11 +17,13 @@ Wiezu:
  -c n	Begrenzt die erlaubten Dateien pro Pfostierung auf n. Nützlich für Combos.
 	Berücksichtige, dass z.B. 11.jpg vor 2.jpg einsortiert wird!
  -o	Optionale Abfragen (Name, Betreff und Kommentar) werden aktiviert.
+ -d	Debug-Texte aktivieren
  -h	Diese Hilfe."
 
 ua="Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_7; en-us) AppleWebKit/533.21.1 (KHTML, like Gecko) Version/5.0.5 Safari/533.21.1"
 post_url="http://krautchan.net/post"
-cretry=3; cdelay=120; ctimeout=900; count=0; optional=0; combo=0; name_allowed=1; debug=0
+debug_file=${HOME}/Desktop/debug.txt
+c_retry=3; c_delay=120; c_timeout=900; count=0; optional=0; combo=0; name_allowed=1; debug=0; interact=0
 bifs=${IFS}; id=; name=; isub=; icom=
 #delete_url="http://krautchan.net/delete"
 #pwd=""
@@ -109,8 +112,11 @@ arr_files+=(END)
 
 echo
 
+trap 'interact=1' 2
+
 for file in "${arr_files[@]}"; do
 	((count += 1))
+	
 	if [[ "${file}" != "END" ]]; then
 		if [[ "${files_allowed}" -eq "1" ]]; then
 			arr_curl+=(-F file_0=@${file})
@@ -134,21 +140,29 @@ for file in "${arr_files[@]}"; do
 	elif [[ "${file}" = "END" ]] && [[ "${count}" -eq "1" ]]; then
 		exit 0
 	fi
-
-	output=$(curl --retry "${cretry}" --retry-delay "${cdelay}" --max-time "${ctimeout}" -# -A "${ua}" -F "sage=${sage}" -F "board=${board}" -F "parent=${id}" -F "forward=thread" -F "internal_n=${name}" -F "internal_s=${isub}" -F "internal_t=${icom}" "${arr_curl[@]}" "${post_url}")
-
+	
+	if [[ "${interact}" -eq "1" ]]; then
+		echo -e "\nSkript wirklich [b]eenden oder [K]ommentar hinzufügen und fortsetzen?"
+		read -en 1 interact_ans
+		case "${interact_ans}" in
+			b|B)	exit 0 ;;
+			k|K)	read -ep "Kommentar: " icom; interact=0 ;;
+			*)		exit 1 ;;
+		esac
+	fi
+	
+	output=$(trap '' 2; curl --retry "${c_retry}" --retry-delay "${c_delay}" --max-time "${c_timeout}" -# -A "${ua}" -F "sage=${sage}" -F "board=${board}" -F "parent=${id}" -F "forward=thread" -F "internal_n=${name}" -F "internal_s=${isub}" -F "internal_t=${icom}" "${arr_curl[@]}" "${post_url}")
+	
 	if [[ -z "${id}" ]]; then
 		[[ $output =~ .*thread-([0-9]*)\.html.* ]]
 		id=${BASH_REMATCH[1]}
 		echo "Neuen Faden erstellt: http://krautchan.net/${board}/thread-${id}.html"
 	fi
 	
-	[[ "${debug}" -eq "1"  ]] && echo -ne "\n\n##\n##\n\n${output}" >> ${HOME}/Desktop/debug.txt
+	[[ "${debug}" -eq "1"  ]] && echo -ne "\n\n##\n##\n\n${output}" >> ${debug_file}
 	
-	count=0
 	unset arr_curl
-	isub=
-	icom=
+	count=0; isub=; icom=
 done
 
 exit 0
