@@ -13,5 +13,6 @@ Wiezu:
  -c n	Begrenzt die erlaubten Dateien pro Pfostierung auf n. Nützlich für Combos.
 	Berücksichtige, dass z.B. 11.jpg vor 2.jpg einsortiert wird!
  -o	Optionale Abfragen (Name, Betreff und Kommentar) werden aktiviert.
- -d	Debug-Texte aktivieren
+ -r	Dateien in einer zufälligen Reihenfolge pfostieren.
+ -d	Debug-Texte aktivieren.
  -h	Diese Hilfe.

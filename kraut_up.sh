@@ -17,25 +17,37 @@ Wiezu:
  -c n	Begrenzt die erlaubten Dateien pro Pfostierung auf n. Nützlich für Combos.
 	Berücksichtige, dass z.B. 11.jpg vor 2.jpg einsortiert wird!
  -o	Optionale Abfragen (Name, Betreff und Kommentar) werden aktiviert.
- -d	Debug-Texte aktivieren
+ -r	Dateien in einer zufälligen Reihenfolge pfostieren.
+ -d	Debug-Texte aktivieren.
  -h	Diese Hilfe."
 
 ua="Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_7; en-us) AppleWebKit/533.21.1 (KHTML, like Gecko) Version/5.0.5 Safari/533.21.1"
 post_url="http://krautchan.net/post"
 debug_file=${HOME}/Desktop/debug.txt
-c_retry=3; c_delay=120; c_timeout=900; count=0; optional=0; combo=0; name_allowed=1; debug=0; interact=0
+c_retry=3; c_delay=120; c_timeout=900; count=0; optional=0; combo=0; name_allowed=1; debug=0; interact=0; twist=0
 bifs=${IFS}; id=; name=; isub=; icom=
 #delete_url="http://krautchan.net/delete"
 #pwd=""
 arr_kind=(-iname "*.gif" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.psd" -o -iname "*.mp3" -o -iname "*.ogg" -o -iname "*.rar" -o -iname "*.zip" -o -iname "*.torrent" -o -iname "*.swf")
 
-while getopts ":hsoc:d" opt; do
+randomize() {
+n=${#arr_files[@]}
+while ((n)); do
+	indices=("${!arr_files[@]}")		# kopiert den array-index in ein neues array
+	i=${indices[RANDOM%n--]}			# rand modulo elementanzahl des arrays / post-decrement n
+	echo "${arr_files[i]}"
+	unset "arr_files[i]"
+done
+}
+
+while getopts ":hsoc:rd" opt; do
 	case "${opt}" in
 		h) 	echo -e "${kchelp}"; exit 0 ;;
 		s) 	sage=1 ;;
 		o) 	optional=1 ;;
 		c) 	[[ "${OPTARG}" != [1-4] ]] && echo -e "\nAch, Bernd! Nur die Ziffern 1 bis 4 machen Sinn ..." && exit 1
 			combo=${OPTARG} ;;
+		r)	twist=1 ;;
 		d)	debug=1 ;;
 		\?)	echo -e "\n -${OPTARG} gibt es nicht!\n${kchelp}"; exit 1 ;;
 		:)	echo -e "\n -${OPTARG} benötigt ein Argument!\n${kchelp}"; exit 1 ;;
@@ -44,7 +56,7 @@ done
 
 shift $((OPTIND-1))
 [[ "${1}" == -- ]] && shift
-arr_files+=("${@}")
+arr_files=("${@}")
 
 choose() {
 echo -e "Wähle ein Brett aus\n (b,int,vip,a,c,d,e,f,fb,fit,jp,k,l,li,m,p,ph,sp,t,tv\n  v,w,we,wp,x,n,rfk,z,zp,h,s,kc)"
@@ -83,14 +95,19 @@ read -ep "> " id
 if [[ -z "${arr_files}" ]]; then
 	echo -e "\nVerzeichniss(e) auswählen. Leerzeichen müssen escaped werden.\n (z.B.: /Users/bernd/penisbilder /home/bernadette/als\ ob)"
 	read -ep "> " -a arr_dir
-	IFS='
-'
+	
+	IFS=$'\n' # erlaubt leerzeichen in dateipfaden und dateinamen, trennt den find/randomize output in einzelne elemente
+	
 	for dir in "${arr_dir[@]}"; do
-		for files in $(find ${dir} -type f -size -${max_file_size} \( ${arr_kind[@]} \) ); do
+		for files in $(find "${dir}" -type f -size -${max_file_size} \( ${arr_kind[@]} \) ); do
 			arr_files+=("${files}")
 		done
 	done
+	
+	[[ "${twist}" -eq "1" ]] && arr_files=( $(randomize) )
+	
 	IFS=${bifs}
+	
 	echo -e "\n${#arr_files[@]} Dateien gefunden."
 fi
 
@@ -116,7 +133,6 @@ trap 'interact=1' 2
 
 for file in "${arr_files[@]}"; do
 	((count += 1))
-	
 	if [[ "${file}" != "END" ]]; then
 		if [[ "${files_allowed}" -eq "1" ]]; then
 			arr_curl+=(-F file_0=@${file})
