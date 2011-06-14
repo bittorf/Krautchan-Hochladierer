@@ -8,7 +8,6 @@ dabei nicht berücksichtigt).
 Während des Upload-Vorgangs lassen sich mittels ctrl-c Kommentare hinzufügen.
 Getestet mit OS X, Debian Stale und Cygwin.
 
-Wiezu:
  -s	Säge!
  -c n	Begrenzt die erlaubten Dateien pro Pfostierung auf n. Nützlich für Combos.
 	Berücksichtige, dass z.B. 11.jpg vor 2.jpg einsortiert wird!

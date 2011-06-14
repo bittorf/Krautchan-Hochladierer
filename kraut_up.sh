@@ -4,7 +4,7 @@ if [[ -z "$(type -P curl)" ]]; then
 	echo "Dieses Skript benötigt cURL. Vergewissere dich dass es installiert ist und im Suchpfad liegt."; exit 1
 fi
 
-kchelp="\nkraut_up.sh [-sohd] [-c 1-4] Datei ...
+kchelp="\n${0##*/} [-sohd] [-c 1-4] Datei ...
 
 Erstellt Fäden und pfostiert alle auf Krautchan erlaubten Dateien aus einem oder mehreren Verzeichnissen.
 Alternativ lassen sich die zu pfostierenden Dateien als Skript-Argument angeben (Dateigröße und Art werden
