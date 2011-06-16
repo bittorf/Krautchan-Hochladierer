@@ -1,6 +1,6 @@
 WIE-ZU:
 
-kraut_up.sh [-sohd] [-c 1-4] Datei ...
+kraut_up.sh [-sohrpd] [-c 1-4] [-p <integer>] Datei ...
 
 Erstellt Fäden und pfostiert alle auf Krautchan erlaubten Dateien aus einem oder mehreren Verzeichnissen.
 Alternativ lassen sich die zu pfostierenden Dateien als Skript-Argument angeben (Dateigröße und Art werden
@@ -13,5 +13,6 @@ Getestet mit OS X, Debian Stale und Cygwin.
 	Berücksichtige, dass z.B. 11.jpg vor 2.jpg einsortiert wird!
  -o	Optionale Abfragen (Name, Betreff und Kommentar) werden aktiviert.
  -r	Dateien in einer zufälligen Reihenfolge pfostieren.
+ -p n	Pause von n Sekunden zwischen Pfostierungen einlegen.
  -d	Debug-Texte aktivieren.
  -h	Diese Hilfe.
