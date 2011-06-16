@@ -4,7 +4,7 @@ if [[ -z "$(type -P curl)" ]]; then
 	echo "Dieses Skript benötigt cURL. Vergewissere dich dass es installiert ist und im Suchpfad liegt."; exit 1
 fi
 
-kchelp="\n${0##*/} [-sohd] [-c 1-4] Datei ...
+kchelp="\n${0##*/} [-sohrpd] [-c 1-4] [-p <integer>] Datei ...
 
 Erstellt Fäden und pfostiert alle auf Krautchan erlaubten Dateien aus einem oder mehreren Verzeichnissen.
 Alternativ lassen sich die zu pfostierenden Dateien als Skript-Argument angeben (Dateigröße und Art werden
@@ -18,12 +18,14 @@ Wiezu:
 	Berücksichtige, dass z.B. 11.jpg vor 2.jpg einsortiert wird!
  -o	Optionale Abfragen (Name, Betreff und Kommentar) werden aktiviert.
  -r	Dateien in einer zufälligen Reihenfolge pfostieren.
+ -p n	Pause von n Sekunden zwischen Pfostierungen einlegen.
  -d	Debug-Texte aktivieren.
  -h	Diese Hilfe."
 
 ua="Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_7; en-us) AppleWebKit/533.21.1 (KHTML, like Gecko) Version/5.0.5 Safari/533.21.1"
 post_url="http://krautchan.net/post"
 debug_file=${HOME}/Desktop/debug.txt
+pause=0
 c_retry=3; c_delay=120; c_timeout=900; count=0; optional=0; combo=0; name_allowed=1; debug=0; interact=0; twist=0
 bifs=${IFS}; id=; name=; isub=; icom=
 #delete_url="http://krautchan.net/delete"
@@ -40,7 +42,7 @@ while ((n)); do
 done
 }
 
-while getopts ":hsoc:rd" opt; do
+while getopts ":hsoc:rp:d" opt; do
 	case "${opt}" in
 		h) 	echo -e "${kchelp}"; exit 0 ;;
 		s) 	sage=1 ;;
@@ -48,6 +50,7 @@ while getopts ":hsoc:rd" opt; do
 		c) 	[[ "${OPTARG}" != [1-4] ]] && echo -e "\nAch, Bernd! Nur die Ziffern 1 bis 4 machen Sinn ..." && exit 1
 			combo=${OPTARG} ;;
 		r)	twist=1 ;;
+		p)	[[ "${OPTARG}" != *[!0-9]* ]] && pause="${OPTARG}" ;;
 		d)	debug=1 ;;
 		\?)	echo -e "\n -${OPTARG} gibt es nicht!\n${kchelp}"; exit 1 ;;
 		:)	echo -e "\n -${OPTARG} benötigt ein Argument!\n${kchelp}"; exit 1 ;;
@@ -176,6 +179,8 @@ for file in "${arr_files[@]}"; do
 	fi
 	
 	[[ "${debug}" -eq "1"  ]] && echo -ne "\n\n##\n##\n\n${output}" >> ${debug_file}
+	
+	[[ "${pause}" -gt "0" ]] && echo "Pause: ${pause} Sekunden" && sleep ${pause}
 	
 	unset arr_curl
 	count=0; isub=; icom=
