@@ -107,11 +107,15 @@ if [[ -z "${arr_files}" ]]; then
 		done
 	done
 	
-	[[ "${twist}" -eq "1" ]] && arr_files=( $(randomize) )
-	
 	IFS=${bifs}
 	
 	echo -e "\n${#arr_files[@]} Dateien gefunden."
+fi
+
+if [[ "${twist}" -eq "1" ]]; then
+	IFS=$'\n'
+	arr_files=( $(randomize) )
+	IFS=${bifs}
 fi
 
 if [[ "${optional}" -eq "1" ]]; then
@@ -178,7 +182,7 @@ for file in "${arr_files[@]}"; do
 		echo "Neuen Faden erstellt: http://krautchan.net/${board}/thread-${id}.html"
 	fi
 	
-	[[ "${debug}" -eq "1"  ]] && echo -ne "\n\n##\n##\n\n${output}" >> ${debug_file}
+	[[ "${debug}" -eq "1"  ]] && echo -ne "##\n##\n\n${arr_curl[@]}\n${icom}\n${id}\n${output}\n\n" >> ${debug_file}
 	
 	[[ "${pause}" -gt "0" ]] && echo "Pause: ${pause} Sekunden" && sleep ${pause}
 	
