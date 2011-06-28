@@ -50,7 +50,7 @@ while getopts ":hsoc:rp:d" opt; do
 		c) 	[[ "${OPTARG}" != [1-4] ]] && echo -e "\nAch, Bernd! Nur die Ziffern 1 bis 4 machen Sinn ..." && exit 1
 			combo=${OPTARG} ;;
 		r)	twist=1 ;;
-		p)	[[ "${OPTARG}" != *[!0-9]* ]] && pause="${OPTARG}" ;;
+		p)	[[ "${OPTARG}" != *[!0-9]* ]] && pause="${OPTARG}" || exit 1 ;;
 		d)	debug=1 ;;
 		\?)	echo -e "\n -${OPTARG} gibt es nicht!\n${kchelp}"; exit 1 ;;
 		:)	echo -e "\n -${OPTARG} benötigt ein Argument!\n${kchelp}"; exit 1 ;;
@@ -108,11 +108,12 @@ if [[ -z "${arr_files}" ]]; then
 	done
 	
 	IFS=${bifs}
-	
-	echo -e "\n${#arr_files[@]} Dateien gefunden."
 fi
 
+echo -e "\n${#arr_files[@]} Dateien gefunden."
+
 if [[ "${twist}" -eq "1" ]]; then
+	echo "Zufällige Reihenfolge wird erstellt …"
 	IFS=$'\n'
 	arr_files=( $(randomize) )
 	IFS=${bifs}
@@ -182,7 +183,9 @@ for file in "${arr_files[@]}"; do
 		echo "Neuen Faden erstellt: http://krautchan.net/${board}/thread-${id}.html"
 	fi
 	
-	[[ "${debug}" -eq "1"  ]] && echo -ne "##\n##\n\n${arr_curl[@]}\n${icom}\n${id}\n${output}\n\n" >> ${debug_file}
+	[[ ${output} =~ .*Verification\ code\ wrong\..* ]] && echo "Captchas sind aktiv ;_;" && exit 1
+	
+	[[ "${debug}" -eq "1"  ]] && echo -ne "${arr_curl[@]}\n\n${icom}\n\n${id}\n\n${output}\n\n##\n##\n\n" >> ${debug_file}
 	
 	[[ "${pause}" -gt "0" ]] && echo "Pause: ${pause} Sekunden" && sleep ${pause}
 	
