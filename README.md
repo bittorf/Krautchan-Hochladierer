@@ -1,6 +1,6 @@
-**WIE-ZU:**
+##WIE-ZU:
 
-kraut_up.sh [-sohrpd] [-c 1-4] [-p <integer>] [-k <komturcode>] Datei ...
+**kraut_up.sh** [-sohrpd] [-c 1-4] [-p <integer>] [-k <komturcode>] Datei ...
 
 Erstellt Fäden und pfostiert alle auf Krautchan erlaubten Dateien aus einem oder mehreren Verzeichnissen.
 Alternativ lassen sich die zu pfostierenden Dateien als Skript-Argument angeben (Dateigröße und Art werden
@@ -8,18 +8,18 @@ dabei nicht berücksichtigt).
 Während des Upload-Vorgangs lassen sich mittels ctrl-c Kommentare hinzufügen.
 Getestet mit OS X, Debian Stale und Cygwin.
 
- -s	Säge!
+ **-s**	Säge!
 
- -c n	Begrenzt die erlaubten Dateien pro Pfostierung auf n. Nützlich für Combos.	Berücksichtige, dass z.B. 11.jpg vor 2.jpg einsortiert wird!
+ **-c n**	Begrenzt die erlaubten Dateien pro Pfostierung auf n. Nützlich für Combos.	Berücksichtige, dass z.B. 11.jpg vor 2.jpg einsortiert wird!
 
- -o	Optionale Abfragen (Name, Betreff und Kommentar) werden aktiviert.
+ **-o**	Optionale Abfragen (Name, Betreff und Kommentar) werden aktiviert.
 
- -r	Dateien in einer zufälligen Reihenfolge pfostieren.
+ **-r**	Dateien in einer zufälligen Reihenfolge pfostieren.
 
- -p n	Pause von n Sekunden zwischen Pfostierungen einlegen.
+ **-p n**	Pause von n Sekunden zwischen Pfostierungen einlegen.
 
- -k n	Komturcode.
+ **-k n**	Komturcode.
 
- -d	Debug-Texte aktivieren.
+ **-d**	Debug-Texte aktivieren.
 
- -h	Diese Hilfe.
+ **-h**	Diese Hilfe.
