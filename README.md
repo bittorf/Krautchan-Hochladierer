@@ -1,6 +1,6 @@
 ##WIE-ZU:
 
-**kraut_up.sh** [-sohrpd] [-c 1-4] [-p <integer>] [-k <komturcode>] Datei ...
+**kraut_up.sh** [-sohrpd] [-c 1-4] [-p \<integer>] [-k \<komturcode>] Datei ...
 
 Erstellt Fäden und pfostiert alle auf Krautchan erlaubten Dateien aus einem oder mehreren Verzeichnissen.
 Alternativ lassen sich die zu pfostierenden Dateien als Skript-Argument angeben (Dateigröße und Art werden
