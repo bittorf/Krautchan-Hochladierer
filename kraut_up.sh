@@ -14,7 +14,7 @@ bifs=${IFS}; id=; name=; isub=; icom=
 #pwd=""
 arr_kind=(-iname "*.gif" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.psd" -o -iname "*.mp3" -o -iname "*.ogg" -o -iname "*.rar" -o -iname "*.zip" -o -iname "*.torrent" -o -iname "*.swf")
 
-kchelp="\n${0##*/} [-sohrd] [-c 1-4] [-p <integer>] Datei ...
+kchelp="\n${0##*/} [-sohrd] [-c 1-4] [-p <integer>] [-k <komturcode>] Datei ...
 
 Erstellt Fäden und pfostiert alle auf Krautchan erlaubten Dateien aus einem oder mehreren Verzeichnissen.
 Alternativ lassen sich die zu pfostierenden Dateien als Skript-Argument angeben (Dateigröße und Art werden
@@ -29,6 +29,7 @@ Wiezu:
  -o	Optionale Abfragen (Name, Betreff und Kommentar) werden aktiviert.
  -r	Dateien werden in einer zufälligen Reihenfolge pfostiert.
  -p n	Zwischen den Pfostierungen wird eine Pause von n-Sekunden eingelegt.
+ -k n	Komturcode.
  -d	Debugoutput wird aktiviert (${debug_file}).
  -h	Diese Hilfe."
 
@@ -42,7 +43,7 @@ while ((n)); do
 done
 }
 
-while getopts ":hsoc:rp:d" opt; do
+while getopts ":hsoc:rp:k:d" opt; do
 	case "${opt}" in
 		h) 	echo -e "${kchelp}"; exit 0 ;;
 		s) 	sage=1 ;;
@@ -52,6 +53,7 @@ while getopts ":hsoc:rp:d" opt; do
 		r)	twist=1 ;;
 		p)	[[ "${OPTARG}" != *[!0-9]* ]] && pause="${OPTARG}" || exit 1 ;;
 		d)	debug=1 ;;
+		k)	arr_komtur=(-b desuchan.komturcode=${OPTARG}) ;;
 		\?)	echo -e "\n -${OPTARG} gibt es nicht!\n${kchelp}"; exit 1 ;;
 		:)	echo -e "\n -${OPTARG} benötigt ein Argument!\n${kchelp}"; exit 1 ;;
 	esac
@@ -175,7 +177,7 @@ for file in "${arr_files[@]}"; do
 		esac
 	fi
 	
-	output=$(trap '' 2; curl --retry "${c_retry}" --retry-delay "${c_delay}" --max-time "${c_timeout}" -# -A "${ua}" -F "sage=${sage}" -F "board=${board}" -F "parent=${id}" -F "forward=thread" -F "internal_n=${name}" -F "internal_s=${isub}" -F "internal_t=${icom}" "${arr_curl[@]}" "${post_url}")
+	output=$(trap '' 2; curl "${arr_komtur[@]}" --retry "${c_retry}" --retry-delay "${c_delay}" --max-time "${c_timeout}" -# -A "${ua}" -F "sage=${sage}" -F "board=${board}" -F "parent=${id}" -F "forward=thread" -F "internal_n=${name}" -F "internal_s=${isub}" -F "internal_t=${icom}" "${arr_curl[@]}" "${post_url}")
 	
 	[[ ${output} =~ .*banned.* ]] && echo "Sie, mein Herr, sind banniert! Glückwunsch! (http://krautchan.net/banned)" && exit 1
 	
@@ -187,7 +189,7 @@ for file in "${arr_files[@]}"; do
 		echo "Neuen Faden erstellt: http://krautchan.net/${board}/thread-${id}.html"
 	fi
 	
-	[[ "${debug}" -eq "1"  ]] && echo -ne "${arr_curl[@]}\n\n${icom}\n\n${id}\n\n${output}\n\n##\n##\n\n" >> ${debug_file}
+	[[ "${debug}" -eq "1" ]] && echo -ne "${arr_curl[@]}\n\n${icom}\n\n${id}\n\n${output}\n\n##\n##\n\n" >> ${debug_file}
 	
 	[[ "${pause}" -gt "0" ]] && echo "Pause: ${pause} Sekunden" && sleep ${pause}
 	
