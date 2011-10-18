@@ -4,7 +4,17 @@ if [[ -z "$(type -P curl)" ]]; then
 	echo "Dieses Skript benötigt cURL. Vergewissere dich dass es installiert ist und im Suchpfad liegt."; exit 1
 fi
 
-kchelp="\n${0##*/} [-sohrpd] [-c 1-4] [-p <integer>] Datei ...
+ua="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_1) AppleWebKit/534.48.3 (KHTML, like Gecko) Version/5.1 Safari/534.48.3"
+post_url="http://krautchan.net/post"
+debug_file=${HOME}/Desktop/debug.txt
+pause=0
+c_retry=3; c_delay=120; c_timeout=900; count=0; optional=0; combo=0; name_allowed=1; debug=0; interact=0; twist=0
+bifs=${IFS}; id=; name=; isub=; icom=
+#delete_url="http://krautchan.net/delete"
+#pwd=""
+arr_kind=(-iname "*.gif" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.psd" -o -iname "*.mp3" -o -iname "*.ogg" -o -iname "*.rar" -o -iname "*.zip" -o -iname "*.torrent" -o -iname "*.swf")
+
+kchelp="\n${0##*/} [-sohrd] [-c 1-4] [-p <integer>] Datei ...
 
 Erstellt Fäden und pfostiert alle auf Krautchan erlaubten Dateien aus einem oder mehreren Verzeichnissen.
 Alternativ lassen sich die zu pfostierenden Dateien als Skript-Argument angeben (Dateigröße und Art werden
@@ -17,20 +27,10 @@ Wiezu:
  -c n	Begrenzt die erlaubten Dateien pro Pfostierung auf n. Nützlich für Combos.
 	Berücksichtige, dass z.B. 11.jpg vor 2.jpg einsortiert wird!
  -o	Optionale Abfragen (Name, Betreff und Kommentar) werden aktiviert.
- -r	Dateien in einer zufälligen Reihenfolge pfostieren.
- -p n	Pause von n Sekunden zwischen Pfostierungen einlegen.
- -d	Debug-Texte aktivieren.
+ -r	Dateien werden in einer zufälligen Reihenfolge pfostiert.
+ -p n	Zwischen den Pfostierungen wird eine Pause von n-Sekunden eingelegt.
+ -d	Debugoutput wird aktiviert (${debug_file}).
  -h	Diese Hilfe."
-
-ua="Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_7; en-us) AppleWebKit/533.21.1 (KHTML, like Gecko) Version/5.0.5 Safari/533.21.1"
-post_url="http://krautchan.net/post"
-debug_file=${HOME}/Desktop/debug.txt
-pause=0
-c_retry=3; c_delay=120; c_timeout=900; count=0; optional=0; combo=0; name_allowed=1; debug=0; interact=0; twist=0
-bifs=${IFS}; id=; name=; isub=; icom=
-#delete_url="http://krautchan.net/delete"
-#pwd=""
-arr_kind=(-iname "*.gif" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.psd" -o -iname "*.mp3" -o -iname "*.ogg" -o -iname "*.rar" -o -iname "*.zip" -o -iname "*.torrent" -o -iname "*.swf")
 
 randomize() {
 n=${#arr_files[@]}
@@ -177,13 +177,15 @@ for file in "${arr_files[@]}"; do
 	
 	output=$(trap '' 2; curl --retry "${c_retry}" --retry-delay "${c_delay}" --max-time "${c_timeout}" -# -A "${ua}" -F "sage=${sage}" -F "board=${board}" -F "parent=${id}" -F "forward=thread" -F "internal_n=${name}" -F "internal_s=${isub}" -F "internal_t=${icom}" "${arr_curl[@]}" "${post_url}")
 	
+	[[ ${output} =~ .*banned.* ]] && echo "Sie, mein Herr, sind banniert! Glückwunsch! (http://krautchan.net/banned)" && exit 1
+	
+	[[ ${output} =~ .*Verification\ code\ wrong\..* ]] || [[ ${output} =~ .*Verifizierungscode\ falsch\..* ]] && echo "Captchas sind aktiv ;_;" && exit 1
+	
 	if [[ -z "${id}" ]]; then
 		[[ $output =~ .*thread-([0-9]*)\.html.* ]]
 		id=${BASH_REMATCH[1]}
 		echo "Neuen Faden erstellt: http://krautchan.net/${board}/thread-${id}.html"
 	fi
-	
-	[[ ${output} =~ .*Verification\ code\ wrong\..* ]] && echo "Captchas sind aktiv ;_;" && exit 1
 	
 	[[ "${debug}" -eq "1"  ]] && echo -ne "${arr_curl[@]}\n\n${icom}\n\n${id}\n\n${output}\n\n##\n##\n\n" >> ${debug_file}
 	
