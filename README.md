@@ -10,17 +10,17 @@ Getestet mit OS X, Debian Stale und Cygwin.
 
 **-s**	Säge!
 
-**-c *n***	Begrenzt die erlaubten Dateien pro Pfostierung auf n. Nützlich für Combos.	Berücksichtige, dass z.B. 11.jpg vor 2.jpg einsortiert wird!
+**-c n**	Begrenzt die erlaubten Dateien pro Pfostierung auf n. Nützlich für Combos.	Berücksichtige, dass z.B. 11.jpg vor 2.jpg einsortiert wird!
 
 **-o**	Optionale Abfragen (Name, Betreff und Kommentar) werden aktiviert.
 
 **-r**	Dateien in einer zufälligen Reihenfolge pfostieren.
 
-**-p *n***	Pause von n Sekunden zwischen Pfostierungen einlegen.
+**-p n**	Pause von n Sekunden zwischen Pfostierungen einlegen.
 
-**-x *n***	Proxy.
+**-x n**	Proxy.
 
-**-k *n***	Komturcode.
+**-k n**	Komturcode.
 
 **-d**	Debug-Texte aktivieren.
 
