@@ -4,9 +4,9 @@ if [[ -z "$(type -P curl)" ]]; then
 	echo "Dieses Skript benötigt cURL. Vergewissere dich dass es installiert ist und im Suchpfad liegt."; exit 1
 fi
 
-ua="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_1) AppleWebKit/534.48.3 (KHTML, like Gecko) Version/5.1 Safari/534.48.3"
+ua="Krautchan-Hochladierer"
 post_url="http://krautchan.net/post"
-debug_file=${HOME}/Desktop/debug.txt
+debug_file=${HOME}/debug.txt
 pause=0
 c_retry=3; c_delay=120; c_timeout=900; count=0; period_count=0; optional=0; combo=0; name_allowed=1; debug=0; interact=0; twist=0
 bifs=${IFS}; id=; name=; isub=; icom=; start_time=0
@@ -178,8 +178,6 @@ for file in "${arr_files[@]}"; do
 			*)		exit 1 ;;
 		esac
 	fi
-	
-	
 	
 	output=$(trap '' 2; curl "${arr_proxy[@]}" "${arr_komtur[@]}" --retry "${c_retry}" --retry-delay "${c_delay}" --max-time "${c_timeout}" -# -A "${ua}" -F "sage=${sage}" -F "board=${board}" -F "parent=${id}" -F "forward=thread" -F "internal_n=${name}" -F "internal_s=${isub}" -F "internal_t=${icom}" "${arr_curl[@]}" "${post_url}")
 	
