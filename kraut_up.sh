@@ -187,14 +187,14 @@ for file in "${arr_files[@]}"; do
 	if [[ "${period_count}" -gt "3" ]]; then
 		((start_diff = $(date +%s) - start_time))
 		if [[ "${start_diff}" -lt "60" ]]; then
-			echo "Pause für $((64 - start_diff)) Sekunden um das Pfostenlimit von 4 Pfosten pro Minute nicht zu überschreiten."
-			sleep $((64 - start_diff))
+			echo "Pause für $((60 - start_diff)) Sekunden um das Pfostenlimit von 4 Pfosten pro Minute nicht zu überschreiten."
+			sleep $((60 - start_diff))
 			period_count=0
-			start_time=$(date +%s)
+			start_time=0
 		fi
 	fi
 	
-	[[ "${start_time}" -eq "0" ]] && start_time=$(date +%s)
+	[[ "${start_time}" -eq "0" ]] && [[ "${period_count}" -ge "1" ]] && start_time=$(date +%s)
 	
 	[[ ${output} =~ .*banned.* ]] && echo "Sie, mein Herr, sind banniert! Glückwunsch! (http://krautchan.net/banned)" && exit 1
 	
