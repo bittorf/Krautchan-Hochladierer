@@ -180,14 +180,15 @@ for file in "${arr_files[@]}"; do
 	fi
 	
 	output=$(trap '' 2; curl "${arr_proxy[@]}" "${arr_komtur[@]}" --retry "${c_retry}" --retry-delay "${c_delay}" --max-time "${c_timeout}" -# -A "${ua}" -F "sage=${sage}" -F "board=${board}" -F "parent=${id}" -F "forward=thread" -F "internal_n=${name}" -F "internal_s=${isub}" -F "internal_t=${icom}" "${arr_curl[@]}" "${post_url}")
+	date +%s
 	
 	((period_count += 1))
 	
 	if [[ "${period_count}" -gt "3" ]]; then
 		((start_diff = $(date +%s) - start_time))
 		if [[ "${start_diff}" -lt "60" ]]; then
-			echo "Pause für $((62 - start_diff)) Sekunden um das Pfostenlimit von 4 Pfosten pro Minute nicht zu überschreiten."
-			sleep $((62 - start_diff))
+			echo "Pause für $((64 - start_diff)) Sekunden um das Pfostenlimit von 4 Pfosten pro Minute nicht zu überschreiten."
+			sleep $((64 - start_diff))
 			period_count=0
 			start_time=$(date +%s)
 		fi
@@ -199,7 +200,7 @@ for file in "${arr_files[@]}"; do
 	
 	[[ ${output} =~ .*Verification\ code\ wrong.* ]] || [[ ${output} =~ .*Verifizierungscode\ falsch\..* ]] && echo "Captchas sind aktiv ;_;" && exit 1
 	
-	[[ ${output} =~ .*Posts\ in\ 60\ Sekunden.* ]] && echo "Mehr als 4 Pfosten pro Minute sind nicht erlaubt. Pfostierung verworfen."	
+	[[ ${output} =~ .*Posts\ in\ 60\ Sekunden.* ]] && echo "Mehr als 4 Pfosten pro Minute sind nicht erlaubt. Verworfen."
 	
 	[[ "${debug}" -eq "1" ]] && echo -ne "${arr_curl[@]}\n\n${icom}\n\n${id}\n\n${output}\n\n##\n##\n\n" >> ${debug_file}
 	
