@@ -180,7 +180,6 @@ for file in "${arr_files[@]}"; do
 	fi
 	
 	output=$(trap '' 2; curl "${arr_proxy[@]}" "${arr_komtur[@]}" --retry "${c_retry}" --retry-delay "${c_delay}" --max-time "${c_timeout}" -# -A "${ua}" -F "sage=${sage}" -F "board=${board}" -F "parent=${id}" -F "forward=thread" -F "internal_n=${name}" -F "internal_s=${isub}" -F "internal_t=${icom}" "${arr_curl[@]}" "${post_url}")
-	date +%s
 	
 	((period_count += 1))
 	
