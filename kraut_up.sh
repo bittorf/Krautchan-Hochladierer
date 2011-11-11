@@ -87,7 +87,26 @@ case "${board}" in #NEGER, BITTE!
 esac
 }
 
-clear; choose
+clear
+
+cat <<'EOF'
+
+
+
+   __ __              __      __
+  / //_/______ ___ __/ /_____/ /  ___ ____  ____
+ / ,< / __/ _ `/ // / __/ __/ _ \/ _ `/ _ \/___/
+/_/|_/_/  \_,_/\_,_/\__/\__/_//_/\_,_/_//_/
+                           __ __         __   __        __
+                          / // /__  ____/ /  / /__ ____/ /
+                         / _  / _ \/ __/ _ \/ / _ `/ _  /
+                        /_//_/\___/\__/_//_/_/\_,_/\_,_/
+
+
+
+EOF
+
+choose
 
 if [[ "${combo}" -gt "${files_allowed}" ]]; then
 	echo -e "\nEine ${combo}er-Combo ist nicht möglich, da auf /${board}/ nur ${files_allowed} Dateien pro Pfostierung erlaubt sind."
