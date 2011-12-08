@@ -8,12 +8,13 @@ ua="Krautchan-Hochladierer"
 post_url="http://krautchan.net/post"
 debug_file=${HOME}/debug.txt
 pause=0
-c_retry=3; c_delay=120; c_timeout=900; count=0; period_count=0; optional=0; combo=0; name_allowed=1; debug=0; interact=0; twist=0
+c_retry=3; c_delay=120; c_timeout=900; count=0; period_count=0; optional=0; combo=0
+files_allowed=4; name_allowed=1; debug=0; interact=0; twist=0
 bifs=${IFS}; id=; name=; isub=; icom=; start_time=0
 #delete_url="http://krautchan.net/delete"
 #pwd=""
 arr_kind=(-iname "*.gif" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.psd" -o -iname "*.mp3" -o -iname "*.ogg" -o -iname "*.rar" -o -iname "*.zip" -o -iname "*.torrent" -o -iname "*.swf")
-
+arr_kind_red=(-iname "*.gif" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.psd")
 kchelp="\n${0##*/} [-sordh] [-c 1-4] [-p <integer>] [-x <proxyhost[:port]>] [-k <komturcode>] Datei ...
 
 Erstellt Fäden und pfostiert alle auf Krautchan erlaubten Dateien aus einem oder mehreren Verzeichnissen.
@@ -66,24 +67,19 @@ shift $((OPTIND-1))
 arr_files=("${@}")
 
 choose() {
-echo -e "Wähle ein Brett aus\n (b,int,vip,a,c,d,e,f,fb,fit,jp,k,l,li,m,p,ph,sp,t,tv\n  v,w,we,wp,x,n,rfk,z,zp,h,s,kc)"
+echo -e "Wähle ein Brett aus\n (b,int,vip,a,c,co,d,e,f,fb,fit,jp,k,l,li,m,n,p,ph,sp,t,tv\n  v,w,we,wp,x,z,zp,wk,h,s,kc,rfk)"
 read -en 4 -p "> " board
 
 case "${board}" in #NEGER, BITTE!
-	b|int|vip)		files_allowed=4; max_file_size=10M; name_allowed=0 ;;
-	a|jp)			files_allowed=3; max_file_size=9M ;;
-	k)				files_allowed=3; max_file_size=10M ;; #max_post_size=15
-	l|m)			files_allowed=3; max_file_size=20M ;; #max_post_size=40
-	c|fb|p|tv|v|we) files_allowed=3; max_file_size=6M ;;
-	wp)				files_allowed=3; max_file_size=6M
-					arr_kind=(-iname "*.gif" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.psd") ;;
-	rfk)			files_allowed=3; max_file_size=5M ;;
-	z|zp|s)			files_allowed=4; max_file_size=6M
-					arr_kind=(-iname "*.gif" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.psd") ;;
-	h)				files_allowed=3; max_file_size=3M
-					arr_kind=(-iname "*.gif" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.psd") ;;
-	d|e|f|fit|li|ph|sp|t|w|x|n|kc)		files_allowed=3; max_file_size=3M ;;
-	*)				echo -e "\nDepp.\n"; choose ;;
+	b|int|vip)											max_file_size=10M; name_allowed=0 ;;
+	a|jp)												max_file_size=9M ;;
+	k)													max_file_size=10M ;; #max_post_size=15
+	l|m)												max_file_size=20M ;; #max_post_size=40
+	c|co|d|e|f|fb|fit|li|n|p|ph|sp|t|tv|v|w|we|wk|x)	max_file_size=6M ;;
+	rfk)												max_file_size=5M ;;
+	kc)													max_file_size=3M ;;
+	h|s|wp|z|zp)										max_file_size=6M; arr_kind=(${arr_kind_red[@]});;
+	*)													echo -e "\nDepp.\n"; choose ;;
 esac
 }
 
@@ -107,6 +103,8 @@ cat <<'EOF'
 EOF
 
 choose
+
+echo -e "\nMaximal erlaubte Dateianzahl:\t${files_allowed}\nMaximal erlaubte Dateigröße:\t${max_file_size}B"
 
 if [[ "${combo}" -gt "${files_allowed}" ]]; then
 	echo -e "\nEine ${combo}er-Combo ist nicht möglich, da auf /${board}/ nur ${files_allowed} Dateien pro Pfostierung erlaubt sind."
